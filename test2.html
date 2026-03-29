@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Crime vs Education Choropleth</title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.31/"></script>
+
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Legend"
+    ], function(esriConfig, Map, MapView, FeatureLayer, Legend) {
+
+      esriConfig.apiKey = "AAPTa6w0yQaqygHTOjO5Fl9sI7Q..Kn8G_rriHy3NEL1-PDjQeaV-rn-Lwx4kGbybsOO4Mf4AbriVOI3zhkAfaDo1BP5i_x75h1cD15i155-pO50up_mPmItFAGeWkOpCf61_XLzX1FWWxghQiRmmQj4Gbz9XBlEyXiC-oT2fEa0_1lg338f7oix8ixCJU1Hbe-lGbvNlTr7YBOMetrmMX8Y48uJjoMLNh8bAom44X4ynw8v9arNCajuM6LO258BdmUV0OB6SHhjbeOUAK7U3FNyQgw..AT1_wg1Jfprs";
+
+      const countiesLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Crime%20vs%20Education/FeatureServer/0",
+        title: "2023 Median Household Income by County",
+
+        renderer: {
+          type: "class-breaks",
+          field: "MEDHINC_CY",
+          legendOptions: {
+            title: "Median Household Income"
+          },
+          classBreakInfos: [
+            {
+              minValue: 0,
+              maxValue: 50000,
+              label: "Below $50,000",
+              symbol: {
+                type: "simple-fill",
+                color: "#f7fcf5",
+                outline: { color: "#666666", width: 0.4 }
+              }
+            },
+            {
+              minValue: 50000,
+              maxValue: 65000,
+              label: "$50,000 - $65,000",
+              symbol: {
+                type: "simple-fill",
+                color: "#c7e9c0",
+                outline: { color: "#666666", width: 0.4 }
+              }
+            },
+            {
+              minValue: 65000,
+              maxValue: 80000,
+              label: "$65,000 - $80,000",
+              symbol: {
+                type: "simple-fill",
+                color: "#74c476",
+                outline: { color: "#666666", width: 0.4 }
+              }
+            },
+            {
+              minValue: 80000,
+              maxValue: 100000,
+              label: "$80,000 - $100,000",
+              symbol: {
+                type: "simple-fill",
+                color: "#31a354",
+                outline: { color: "#666666", width: 0.4 }
+              }
+            },
+            {
+              minValue: 100000,
+              maxValue: 999999999,
+              label: "Above $100,000",
+              symbol: {
+                type: "simple-fill",
+                color: "#006d2c",
+                outline: { color: "#666666", width: 0.4 }
+              }
+            }
+          ]
+        },
+
+        popupTemplate: {
+          title: "{NAME}, {STATE_ABBR}",
+          content: "<b>Geographic Unit:</b> {NAME}, {STATE_NAME}<br><br>" +
+            "<b>Median Household Income:</b> {MEDHINC_CY}<br><br>" +
+            "<b>Population (2020):</b> {POPULATION}<br>" +
+            "<b>Graduate/Professional Degree Population:</b> {GRADDEG_CY}<br>" +
+            "<b>Murder Index:</b> {CRMCYMURD}"
+        }
+      });
+
+      const map = new Map({
+        basemap: "gray-vector",
+        layers: [countiesLayer]
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-98.5, 39.8],
+        zoom: 4
+      });
+
+      const legend = new Legend({
+        view: view
+      });
+
+      view.ui.add(legend, "bottom-right");
+
+      countiesLayer.when(function() {
+        view.goTo(countiesLayer.fullExtent);
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
